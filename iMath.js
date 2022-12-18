@@ -1,4 +1,12 @@
-const iMath={};
+const iMath={
+  _operators: /[\+\-×\*÷:]/, 
+  _definition:[
+    [['+'],'sum'], 
+    [['-'],'subtract'], 
+    [['*','×'],'multiply'], 
+    [['/',':'],'divide']
+  ] 
+};
 
 iMath._sort=function(num1,num2){
   return num1.length>num2.length?[num1,num2]:[num2,num1];
@@ -15,6 +23,18 @@ iMath._align=function(num1,num2,onlyCountComma=false){
   if(num2.indexOf('.')>=0)num2.splice(num2.indexOf('.'),1);
   
   return [num1,num2,n1+n2];
+}
+iMath._identify=symbol=>{
+  let result;
+  iMath._definition.forEach(v=>{
+    v[0].forEach(w=>{
+      if(symbol==w){
+        result=v[1];
+        return;
+      }
+    })
+  })
+  return result;
 }
 
 iMath.trim=num=>num.replace(/^0+\d/g,'').replace(/\.0*$/g,'');
@@ -45,6 +65,7 @@ iMath.subtract=function(num1,num2){
   num1=num1.replace(/^0+/g,'').split('').reverse();
   num2=num2.replace(/^0+/g,'').split('').reverse();
   [num1,num2,comma]=iMath._align(num1,num2);
+  console.log([num1, num2]) 
   let n1,n2;
   if(num1.length>num2.length)n1=num1,n2=num2
   else n1=num2,n2=num1;
@@ -98,19 +119,37 @@ iMath.multiply=function(num1,num2){
 }
 
 iMath.divide=function(num1,num2){
-  
+  return Number(num1)/Number(num2);
 }
 
 iMath.eval=function(str){
-  const numbers=str.split(/[\+\-\/\*]/);
-  const symbols=str.replace(/[0-9]/g,'').split();
-  let result;
-  symbols.forEach((v,i)=>{
-    if(v=='+')result=iMath.sum(numbers[i*2],numbers[i+1])
-    else if(v=='-')result=iMath.subtract(numbers[i*2],numbers[i+1])
-  });
-  //throw Error("Unable to solve");
-  return result;
+  const line=str.split("\n");
+  let equations=[];
+  line.forEach(v=>{
+    let component=[''];
+    v=v.split('');
+    for(let i=0;i<v.length;i++){
+      if(iMath._operators.test(v[i]) || iMath._operators.test(v[i-1]))component.push(v[i]);
+      else component[component.length-1]+=v[i];
+    }
+    equations.push(component);
+  })
+  
+  let total="";
+  equations.forEach(v=>{
+    let result=[...v];
+    for(i=0;i<v.length;i++){
+      let count=0;
+      console.log([...v])
+      if(iMath._operators.test(v[i])){
+        v.splice(i-1,3,iMath[iMath._identify(v[i])](v[i-1],v[i+1]));
+        count++;
+        i-=count;
+      }
+    } 
+   total=v;
+  })
+  return total[0];
 }
 
 iMath.random=function(from,to,float=false){
