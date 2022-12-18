@@ -5,7 +5,8 @@ Current features:
 - Big int summation, subtraction, multiplication
 - Big float summation, subtraction, multiplication
 - Custom range number randomizer
+- eval(), this library's math expression parser
 
 To be improved:
 - Negative number calculation
-- eval function
+- Operator priority and more math symbol support in eval function
