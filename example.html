@@ -7,6 +7,7 @@
 <body>
   <script src="./iMath.js"></script>
   <script>
+  console.log('negative',iMath.subtract('-10','-8'));
   console.log('bigint summation',iMath.sum('6664646','146464643434'));
   console.log('bigint subtraction',iMath.subtract('1009393940','12883'));
   console.log('float summation',iMath.sum('0.5','0.2'));
@@ -14,7 +15,7 @@
   console.log('multiplication',iMath.multiply('123456789','5.5'));
   console.log('ramdomizer',iMath.random(1,100));
   console.log('randomizer(float)',iMath.random(1,100,true));
-  console.log(iMath.eval('10+8*2-3'));
+  console.log(iMath.eval('10+-8*2+3'));
   </script>
 </body>
 </html>
