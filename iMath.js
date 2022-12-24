@@ -34,10 +34,12 @@ iMath._identify=symbol=>{
       }
     })
   })
+  if(!result)throw "Eval failed: Invalid math expression"
   return result;
 }
 
 iMath.trim=function(num){
+  if(num.includes('NaN'))throw "Calculation failed: NaN resulted";
   if(!num.includes('.'))num=num.replace(/^0+/g,'')
   return num.replace(/\.0*$/g,'');
 }
