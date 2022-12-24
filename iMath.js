@@ -37,9 +37,15 @@ iMath._identify=symbol=>{
   return result;
 }
 
-iMath.trim=num=>num.replace(/^0+\d/g,'').replace(/\.0*$/g,'');
+iMath.trim=function(num){
+  if(!num.includes('.'))num=num.replace(/^0+/g,'')
+  return num.replace(/\.0*$/g,'');
+}
 
 iMath.sum=function(num1,num2){
+  if(num1[0]=='-')return iMath.subtract(num2,num1.slice(1));
+  if(num2[0]=='-')return iMath.subtract(num1,num2.slice(1));
+  
   num1=num1.split('').reverse();
   num2=num2.split('').reverse();
   [num1,num2,comma]=iMath._align(num1,num2);
@@ -62,22 +68,30 @@ iMath.sum=function(num1,num2){
 }
 
 iMath.subtract=function(num1,num2){
+  if(num1[0]=='-')return '-'+iMath.sum(num1.slice(1),num2)
+  if(num2[0]=='-')return iMath.sum(num1,num2.slice(1))
+  
+  let negative=false;
   num1=num1.replace(/^0+/g,'').split('').reverse();
   num2=num2.replace(/^0+/g,'').split('').reverse();
   [num1,num2,comma]=iMath._align(num1,num2);
-  console.log([num1, num2]) 
   let n1,n2;
-  if(num1.length>num2.length)n1=num1,n2=num2
-  else n1=num2,n2=num1;
-  for(let i=0;i<n1.length-n2.length;i++){
-    n2.push(0);
+  if(num1.length>=num2.length)[n1,n2]=[[...num1],[...num2]];
+  else{
+    negative=true;
+    [n1,n2]=[[...num2],[...num1]]
+  }
+  if(n1.length!=n2.length){
+    for(let i=0;i<n1.length-n2.length+1;i++){
+      n2.push('0');
+    }
   }
   let need=0;
   let result=[];
-  num1.forEach((v,i)=>{
+  n1.forEach((v,i)=>{
     let v1=parseInt(v)-need;
-    let v2=parseInt(num2[i]||0);
-    if(v1<v2 && i<num1.length-1){
+    let v2=parseInt(n2[i]||0);
+    if(v1<v2 && i<n1.length-1){
       v1+=10;
       need=1;
     }
@@ -85,7 +99,7 @@ iMath.subtract=function(num1,num2){
     result.push(v1-v2);
   })
   if(comma>0)result.splice(comma,0,'.')
-  return iMath.trim(result.reverse().join(''));
+  return (negative?'-':'')+iMath.trim(result.reverse().join(''));
 }
 
 iMath.multiply=function(num1,num2){
@@ -129,7 +143,7 @@ iMath.eval=function(str){
     let component=[''];
     v=v.split('');
     for(let i=0;i<v.length;i++){
-      if(iMath._operators.test(v[i]) || iMath._operators.test(v[i-1]))component.push(v[i]);
+      if(iMath._operators.test(v[i]) || !iMath._operators.test(v[i]) && iMath._operators.test(v[i-1]) && !iMath._operators.test(v[i-2])) component.push(v[i]);
       else component[component.length-1]+=v[i];
     }
     equations.push(component);
