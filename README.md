@@ -6,10 +6,10 @@ Current features:
 - Big negative int summation & subtraction
 - Big float summation, subtraction, multiplication
 - Custom range number randomizer
-- eval() to parse math expression
+- eval() to parse math expression (unfinished)
 
 To do list:
-- Negative float calculation
 - Big int division
-- Negative number calculatuon for multiplication
+- Completing eval() feature
+- Negative number calculation for multiplication
 - Operator priority and more math symbol support in eval function

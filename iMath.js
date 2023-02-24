@@ -11,7 +11,8 @@ const iMath={
 iMath._sort=function(num1,num2){
   return num1.length>num2.length?[num1,num2]:[num2,num1];
 }
-iMath._align=function(num1,num2,onlyCountComma=false){
+
+iMath._checkDecimal=function(num1,num2,onlyCountComma=false){
   let n1=num1.indexOf('.')<=0?0:num1.indexOf('.');
   let n2=num2.indexOf('.')<=0?0:num2.indexOf('.');
   if(!onlyCountComma){
@@ -40,8 +41,12 @@ iMath._identify=symbol=>{
 
 iMath.trim=function(num){
   if(num.includes('NaN'))throw "Calculation failed: NaN resulted";
-  if(!num.includes('.'))num=num.replace(/^0+/g,'')
-  return num.replace(/\.0*$/g,'');
+  num=num.replace(/^0+/g,'').replace(/\.0*$/g,'');
+  if(num.includes('.')){
+    if(/^\./.test(num))num='0'+num;
+    num=num.replace(/0+$/g,'');
+  }
+  return num;
 }
 
 iMath.sum=function(num1,num2){
@@ -50,7 +55,7 @@ iMath.sum=function(num1,num2){
   
   num1=num1.split('').reverse();
   num2=num2.split('').reverse();
-  [num1,num2,comma]=iMath._align(num1,num2);
+  [num1,num2,decimal]=iMath._checkDecimal(num1,num2);
   let n1,n2;
   [n1,n2]=iMath._sort(num1,num2);
   let remain=0;
@@ -65,7 +70,7 @@ iMath.sum=function(num1,num2){
     result.push(vsum);
     remain=parseInt(p[0]||0);
   })
-  if(comma>0)result.splice(comma,0,'.')
+  if(decimal>0)result.splice(decimal,0,'.')
   return iMath.trim(result.reverse().join(''));
 }
 
@@ -76,9 +81,25 @@ iMath.subtract=function(num1,num2){
   let negative=false;
   num1=num1.replace(/^0+/g,'').split('').reverse();
   num2=num2.replace(/^0+/g,'').split('').reverse();
-  [num1,num2,comma]=iMath._align(num1,num2);
+  [num1,num2,decimal]=iMath._checkDecimal(num1,num2);
+  
   let n1,n2;
-  if(num1.length>=num2.length)[n1,n2]=[[...num1],[...num2]];
+  if(num1.length>num2.length)[n1,n2]=[[...num1],[...num2]];
+  else if(num1.length==num2.length){
+    let n1bigger=false;
+    for(let i=num1.length-1;i>=0;i--){
+      if(num1[i]>num2[i]){
+        n1bigger=true;
+        break;
+      }
+      else if(num1[i]<num2[i]){
+        n1bigger=false;
+        negative=true;
+        break;
+      }
+    }
+    [n1,n2]=n1bigger?[[...num1],[...num2]]:[[...num2],[...num1]];
+  }
   else{
     negative=true;
     [n1,n2]=[[...num2],[...num1]]
@@ -100,15 +121,15 @@ iMath.subtract=function(num1,num2){
     else need=0;
     result.push(v1-v2);
   })
-  if(comma>0)result.splice(comma,0,'.')
+  if(decimal>0)result.splice(decimal,0,'.')
   return (negative?'-':'')+iMath.trim(result.reverse().join(''));
 }
 
 iMath.multiply=function(num1,num2){
   num1=num1.split('').reverse();
   num2=num2.split('').reverse();
-  let comma=0;
-  [num1,num2,comma]=iMath._align(num1,num2,true);
+  let decimal=0;
+  [num1,num2,decimal]=iMath._checkDecimal(num1,num2,true);
   let n1,n2;
   [n1,n2]=iMath._sort(num1,num2);
   let result=[];
@@ -130,7 +151,7 @@ iMath.multiply=function(num1,num2){
     result.push(r);
   })
   result=result.reduce((a,b)=>iMath.sum(b,a),'0').split('');
-  if(comma>0)result.splice(result.length-comma,0,'.');
+  if(decimal>0)result.splice(result.length-decimal,0,'.');
   return iMath.trim(result.join(''));
 }
 
