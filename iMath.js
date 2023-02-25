@@ -126,6 +126,15 @@ iMath.subtract=function(num1,num2){
 }
 
 iMath.multiply=function(num1,num2){
+  let negative=false;
+  if(num1[0]=='-'){
+    negative=true;
+    num1=num1.slice(1);
+  }
+  if(num2[0]=='-'){
+    negative=!negative;
+    num2=num2.slice(2)
+  }
   num1=num1.split('').reverse();
   num2=num2.split('').reverse();
   let decimal=0;
@@ -152,7 +161,7 @@ iMath.multiply=function(num1,num2){
   })
   result=result.reduce((a,b)=>iMath.sum(b,a),'0').split('');
   if(decimal>0)result.splice(result.length-decimal,0,'.');
-  return iMath.trim(result.join(''));
+  return (negative?'-':'')+iMath.trim(result.join(''));
 }
 
 iMath.divide=function(num1,num2){
